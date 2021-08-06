@@ -1,0 +1,7 @@
+name: BridgeEgg
+version: @version@
+main: ga.uniquecoding.bridgeegg.BridgeEgg
+api-version: 1.16
+prefix: BridgeEgg
+authors: [ HydroPage ]
+description: Creates bedwars-style bridge eggs
