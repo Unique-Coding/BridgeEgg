@@ -1,8 +1,10 @@
 package ga.uniquecoding.bridgeegg;
 
+
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIConfig;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @SuppressWarnings("unused")
@@ -12,7 +14,7 @@ public final class BridgeEgg extends JavaPlugin
 	public void onEnable()
 	{
 		saveDefaultConfig();
-		var config = getConfig();
+		FileConfiguration config = getConfig();
 
 		CommandAPI.onEnable(this);
 		BridgeEggStack.onEnable(this);

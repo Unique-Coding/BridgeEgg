@@ -5,11 +5,14 @@ import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
 
@@ -28,20 +31,28 @@ public class BridgeEggThrowHandler implements Listener
 	@EventHandler
 	public void onEggThrow(ProjectileLaunchEvent event)
 	{
-		if (event.getEntity() instanceof Egg egg &&
-				egg.getShooter() instanceof Player player)
+		Projectile entityThrown = event.getEntity();
+
+		if (entityThrown instanceof Egg)
 		{
-			var playerLocation = player.getLocation();
-			var itemThrown = egg.getItem();
+			Egg egg = (Egg) entityThrown;
+			ProjectileSource shooter = egg.getShooter();
 
-			if (isBridgeEgg(itemThrown))
+			if (shooter instanceof Player)
 			{
-				var bes = BridgeEggStack.of(itemThrown);
-				var distance = bes.getDistance();
-				var blockData = bes.getBlockData();
+				Player player = (Player) shooter;
+				Location playerLocation = player.getLocation();
+				ItemStack item = egg.getItem();
 
-				new BridgePlacerTask(plugin, egg, playerLocation, distance, blockData)
-						.runTaskTimer(plugin, 2, 1);
+				if (isBridgeEgg(item))
+				{
+					BridgeEggStack bes = BridgeEggStack.of(item);
+					int distance = bes.getDistance();
+					BlockData blockData = bes.getBlockData();
+
+					new BridgePlacerTask(plugin, egg, playerLocation, distance, blockData)
+							.runTaskTimer(plugin, 2, 1);
+				}
 			}
 		}
 	}
@@ -49,7 +60,7 @@ public class BridgeEggThrowHandler implements Listener
 	@EventHandler
 	public void onEggHit(PlayerEggThrowEvent event)
 	{
-		var eggThrown = event.getEgg().getItem();
+		ItemStack eggThrown = event.getEgg().getItem();
 
 		if (isBridgeEgg(eggThrown))
 			event.setHatching(false);
@@ -81,8 +92,8 @@ public class BridgeEggThrowHandler implements Listener
 				return;
 			}
 
-			var location = egg.getLocation().subtract(0, 2, 0);
-			var distanceFromPlayer = location.distance(playerLocation);
+			Location location = egg.getLocation().subtract(0, 2, 0);
+			double distanceFromPlayer = location.distance(playerLocation);
 
 			if (distanceFromPlayer < distance)
 			{

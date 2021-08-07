@@ -1,0 +1,3 @@
+rootProject.name = 'BridgeEgg'
+include 'BridgeEgg_1.16.4'
+

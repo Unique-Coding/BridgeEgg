@@ -34,14 +34,14 @@ class BridgeEggGiveCommand extends CommandAPICommand
 	private static void execute(CommandSender sender, Object[] args)
 	{
 		//noinspection unchecked
-		var targetPlayers = (Collection<Player>) args[0];
+		Collection<Player> targetPlayers = (Collection<Player>) args[0];
 
-		for (var player : targetPlayers)
+		for (Player player : targetPlayers)
 		{
-			var amount = (int) args[1];
-			var distance = (int) args[2];
-			var blockData = (BlockData) args[3];
-			var eggStack = BridgeEggStack.newInstance(amount, distance, blockData);
+			int amount = (int) args[1];
+			int distance = (int) args[2];
+			BlockData blockData = (BlockData) args[3];
+			BridgeEggStack eggStack = BridgeEggStack.newInstance(amount, distance, blockData);
 
 			player.getInventory()
 				  .addItem(eggStack);

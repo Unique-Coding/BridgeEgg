@@ -4,10 +4,10 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -49,7 +49,7 @@ public class BridgeEggStack extends DelegatingItemStack
 		else if (stack.getType() != EGG)
 			return false;
 
-		var pdc = stack.getItemMeta().getPersistentDataContainer();
+		PersistentDataContainer pdc = stack.getItemMeta().getPersistentDataContainer();
 
 		return pdc.has(distanceKey, INTEGER) && pdc.has(blockKey, STRING);
 	}
@@ -62,18 +62,18 @@ public class BridgeEggStack extends DelegatingItemStack
 	 */
 	public static BridgeEggStack of(ItemStack stack)
 	{
-		var existingWrapper = WRAPPER_CACHE.get(stack);
+		BridgeEggStack existingWrapper = WRAPPER_CACHE.get(stack);
 
 		if (existingWrapper == null)
 		{
 			if (isBridgeEgg(stack))
 			{
-				var pdc = stack.getItemMeta().getPersistentDataContainer();
+				PersistentDataContainer pdc = stack.getItemMeta().getPersistentDataContainer();
 
-				var dist = pdc.get(distanceKey, INTEGER);
-				var blockData = createBlockData(pdc.get(blockKey, STRING));
+				int dist = pdc.get(distanceKey, INTEGER);
+				BlockData blockData = createBlockData(pdc.get(blockKey, STRING));
 
-				var wrapper = newInstance(stack, dist, blockData);
+				BridgeEggStack wrapper = newInstance(stack, dist, blockData);
 				WRAPPER_CACHE.put(stack, wrapper);
 
 				return wrapper;
@@ -123,7 +123,7 @@ public class BridgeEggStack extends DelegatingItemStack
 
 	private static BridgeEggStack newInstance(ItemStack wrapped, int distance, BlockData blockData)
 	{
-		var out = new BridgeEggStack(wrapped, distance, blockData);
+		BridgeEggStack out = new BridgeEggStack(wrapped, distance, blockData);
 		WRAPPER_CACHE.put(wrapped, out);
 		return out;
 	}
@@ -136,8 +136,8 @@ public class BridgeEggStack extends DelegatingItemStack
 
 	private void setMeta(int distance, BlockData blockData)
 	{
-		var meta = wrapped.getItemMeta();
-		var pdc = meta.getPersistentDataContainer();
+		ItemMeta meta = wrapped.getItemMeta();
+		PersistentDataContainer pdc = meta.getPersistentDataContainer();
 
 		pdc.set(distanceKey, INTEGER, distance);
 		pdc.set(blockKey, STRING, blockData.getAsString());
@@ -162,9 +162,9 @@ public class BridgeEggStack extends DelegatingItemStack
 	 */
 	public BlockData getBlockData()
 	{
-		var data = wrapped.getItemMeta()
-						  .getPersistentDataContainer()
-						  .get(blockKey, STRING);
+		String data = wrapped.getItemMeta()
+							 .getPersistentDataContainer()
+							 .get(blockKey, STRING);
 
 		return data == null ? null : createBlockData(data);
 	}
