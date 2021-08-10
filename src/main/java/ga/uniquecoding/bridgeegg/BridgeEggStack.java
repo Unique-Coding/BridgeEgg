@@ -8,6 +8,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -25,8 +26,8 @@ public class BridgeEggStack extends DelegatingItemStack
 
 	private static final BlockData WHITE_WOOL = createBlockData(Material.WHITE_WOOL);
 
-	static NamespacedKey distanceKey;
-	static NamespacedKey blockKey;
+	private static NamespacedKey distanceKey;
+	private static NamespacedKey blockKey;
 
 	static void onEnable(Plugin plugin)
 	{
@@ -80,7 +81,7 @@ public class BridgeEggStack extends DelegatingItemStack
 			}
 			else
 			{
-				throw new IllegalArgumentException("The ItemStack given to wrap");
+				throw new IllegalArgumentException("The ItemStack given to wrap was not a bridge egg");
 			}
 		}
 

@@ -7,7 +7,7 @@ plugins {
 group = 'ga.uniquecoding'
 version = '1'
 
-sourceCompatibility = '1.8'
+sourceCompatibility = '14'
 targetCompatibility = '1.8'
 
 repositories {
@@ -20,14 +20,13 @@ repositories {
         name = 'sonatype'
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
-    flatDir {
-        dirs 'libs'
-    }
+    maven { url = "https://jitpack.io" }
+    maven { url = "https://repo.codemc.org/repository/maven-public/" }
 }
 
 dependencies {
-    compileOnly files("libs/CommandAPI 1.17.jar")
     compileOnly 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
+    compileClasspath 'dev.jorel.CommandAPI:commandapi-shade:6.2.0'
 }
 
 processResources {
