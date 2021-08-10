@@ -50,7 +50,7 @@ public class BridgeEggStack extends DelegatingItemStack
 		else if (stack.getType() != EGG)
 			return false;
 
-		PersistentDataContainer pdc = stack.getItemMeta().getPersistentDataContainer();
+		var pdc = stack.getItemMeta().getPersistentDataContainer();
 
 		return pdc.has(distanceKey, INTEGER) && pdc.has(blockKey, STRING);
 	}
@@ -63,21 +63,18 @@ public class BridgeEggStack extends DelegatingItemStack
 	 */
 	public static BridgeEggStack of(ItemStack stack)
 	{
-		BridgeEggStack existingWrapper = WRAPPER_CACHE.get(stack);
+		var existingWrapper = WRAPPER_CACHE.get(stack);
 
 		if (existingWrapper == null)
 		{
 			if (isBridgeEgg(stack))
 			{
-				PersistentDataContainer pdc = stack.getItemMeta().getPersistentDataContainer();
+				var pdc = stack.getItemMeta().getPersistentDataContainer();
 
-				int dist = pdc.get(distanceKey, INTEGER);
-				BlockData blockData = createBlockData(pdc.get(blockKey, STRING));
+				var dist = pdc.get(distanceKey, INTEGER);
+				var blockData = createBlockData(pdc.get(blockKey, STRING));
 
-				BridgeEggStack wrapper = newInstance(stack, dist, blockData);
-				WRAPPER_CACHE.put(stack, wrapper);
-
-				return wrapper;
+				return newInstance(stack, dist, blockData);
 			}
 			else
 			{
@@ -124,7 +121,7 @@ public class BridgeEggStack extends DelegatingItemStack
 
 	private static BridgeEggStack newInstance(ItemStack wrapped, int distance, BlockData blockData)
 	{
-		BridgeEggStack out = new BridgeEggStack(wrapped, distance, blockData);
+		var out = new BridgeEggStack(wrapped, distance, blockData);
 		WRAPPER_CACHE.put(wrapped, out);
 		return out;
 	}
