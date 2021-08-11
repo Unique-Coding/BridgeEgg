@@ -18,6 +18,7 @@ import org.bukkit.util.BlockIterator;
 import java.util.Iterator;
 
 import static ga.uniquecoding.bridgeegg.BridgeEggStack.isBridgeEgg;
+import static java.lang.Math.ceil;
 import static org.bukkit.Sound.BLOCK_LAVA_POP;
 
 public class BridgeEggThrowHandler implements Listener
@@ -76,6 +77,8 @@ public class BridgeEggThrowHandler implements Listener
         private final int maxDistance;
         private final BlockData blockData;
 
+        private Location lastLocation;
+
         public BridgePlacerTask(Egg egg,
                                 Location playerLocation,
                                 int distance,
@@ -104,6 +107,9 @@ public class BridgeEggThrowHandler implements Listener
                 var twoBlocksDown = egg.getLocation().subtract(0, 2, 0);
                 var distanceFromStart = twoBlocksDown.distance(playerLocation);
 
+                if (lastLocation == null)
+                    lastLocation = twoBlocksDown;
+
                 if (distanceFromStart < maxDistance)
                 {
                     scheduleSegmentPlace(twoBlocksDown);
@@ -113,6 +119,8 @@ public class BridgeEggThrowHandler implements Listener
                     egg.remove();
                     cancel();
                 }
+
+                lastLocation = twoBlocksDown;
             }
         }
 
@@ -128,7 +136,8 @@ public class BridgeEggThrowHandler implements Listener
 
         private void placeSegment(Location location)
         {
-            var segmentRaytrace = new BlockIterator(location, 0, 1);
+            var deltaDistance = (int) ceil(lastLocation.distance(location));
+            var segmentRaytrace = new BlockIterator(location, 0, deltaDistance);
             replaceNonSolidBlocks(segmentRaytrace);
 
             location.getWorld()
