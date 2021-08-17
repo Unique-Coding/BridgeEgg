@@ -2,6 +2,7 @@ package ga.uniquecoding.bridgeegg;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Egg;
@@ -23,6 +24,8 @@ import static org.bukkit.Sound.BLOCK_LAVA_POP;
 
 public class BridgeEggThrowHandler implements Listener
 {
+    private static final int BRIDGE_PLACE_DELAY = 5;
+
     private final Plugin plugin;
 
     public BridgeEggThrowHandler(Plugin plugin)
@@ -73,21 +76,23 @@ public class BridgeEggThrowHandler implements Listener
     private class BridgePlacerTask extends BukkitRunnable
     {
         private final Egg egg;
-        private final Location playerLocation;
+        private final Location locationThrownFrom;
         private final int maxDistance;
         private final BlockData blockData;
+        private final World world;
 
         private Location lastLocation;
 
-        public BridgePlacerTask(Egg egg,
-                                Location playerLocation,
-                                int distance,
+        public BridgePlacerTask(Egg eggThrown,
+                                Location locationThrownFrom,
+                                int maxDistance,
                                 BlockData blockData)
         {
-            this.egg = egg;
-            this.playerLocation = playerLocation;
-            this.maxDistance = distance;
+            this.egg = eggThrown;
+            this.locationThrownFrom = locationThrownFrom;
+            this.maxDistance = maxDistance;
             this.blockData = blockData;
+            this.world = locationThrownFrom.getWorld();
         }
 
         public void begin()
@@ -95,42 +100,41 @@ public class BridgeEggThrowHandler implements Listener
             runTaskTimer(plugin, 2, 1);
         }
 
+        // Meant to run every tick until the egg dies somehow
         @Override
         public void run()
         {
             if (egg.isDead())
             {
                 cancel();
+                return;
             }
-            else
+
+            // 2 blocks down to make the bridge walkable. Not really necessary
+            var currentLocation = egg.getLocation().subtract(0, 2, 0);
+
+            if (lastLocation == null) lastLocation = currentLocation;
+
+            var distanceFromStart = currentLocation.distance(locationThrownFrom);
+            if (distanceFromStart > maxDistance)
             {
-                var twoBlocksDown = egg.getLocation().subtract(0, 2, 0);
-                var distanceFromStart = twoBlocksDown.distance(playerLocation);
-
-                if (lastLocation == null)
-                    lastLocation = twoBlocksDown;
-
-                if (distanceFromStart < maxDistance)
-                {
-                    scheduleSegmentPlace(twoBlocksDown);
-                }
-                else
-                {
-                    egg.remove();
-                    cancel();
-                }
-
-                lastLocation = twoBlocksDown;
+                egg.remove();
+                cancel();
+                return;
             }
+
+            placeBridgeSegmentAfterDelay(currentLocation);
+
+            lastLocation = currentLocation;
         }
 
-        private void scheduleSegmentPlace(Location location)
+        private void placeBridgeSegmentAfterDelay(Location location)
         {
             Bukkit.getScheduler()
                   .runTaskLater(
                           plugin,
                           () -> placeSegment(location),
-                          5
+                          BRIDGE_PLACE_DELAY
                   );
         }
 
@@ -140,8 +144,7 @@ public class BridgeEggThrowHandler implements Listener
             var segmentRaytrace = new BlockIterator(location, 0, deltaDistance);
             replaceNonSolidBlocks(segmentRaytrace);
 
-            location.getWorld()
-                    .playSound(location, BLOCK_LAVA_POP, 2.0f, 3.0f);
+            world.playSound(location, BLOCK_LAVA_POP, 2.0f, 3.0f);
         }
 
         private void replaceNonSolidBlocks(Iterator<Block> blocks)
